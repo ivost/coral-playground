@@ -23,21 +23,7 @@ from pycoral.utils.edgetpu import make_interpreter
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-m', '--model', default='/test_data/mobilenet_v2_1.0_224_inat_bird_quant_edgetpu.tflite',
-                        help='File path of .tflite file.')
-    parser.add_argument('-i', '--input', default='/test_data/parrot.jpg',
-                        help='Image to be classified.')
-    parser.add_argument('-l', '--labels', default='/test_data/inat_bird_labels.txt',
-                        help='File path of labels file.')
-    parser.add_argument('-k', '--top_k', type=int, default=1,
-                        help='Max number of classification results')
-    parser.add_argument('-t', '--threshold', type=float, default=0.0,
-                        help='Classification score threshold')
-    parser.add_argument('-c', '--count', type=int, default=5,
-                        help='Number of times to run inference')
-    args = parser.parse_args()
+    args = args_parse()
 
     labels = read_label_file(args.labels) if args.labels else {}
 
@@ -61,6 +47,25 @@ def main():
     print('-------RESULTS--------')
     for c in classes:
         print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
+
+
+def args_parse():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-m', '--model', default='/test_data/mobilenet_v2_1.0_224_inat_bird_quant_edgetpu.tflite',
+                        help='File path of .tflite file.')
+    parser.add_argument('-i', '--input', default='/test_data/parrot.jpg',
+                        help='Image to be classified.')
+    parser.add_argument('-l', '--labels', default='/test_data/inat_bird_labels.txt',
+                        help='File path of labels file.')
+    parser.add_argument('-k', '--top_k', type=int, default=1,
+                        help='Max number of classification results')
+    parser.add_argument('-t', '--threshold', type=float, default=0.0,
+                        help='Classification score threshold')
+    parser.add_argument('-c', '--count', type=int, default=5,
+                        help='Number of times to run inference')
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == '__main__':
