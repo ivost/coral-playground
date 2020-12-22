@@ -83,8 +83,11 @@ def label_to_color_image(label):
 
 def main():
 
-    image = 'bird.bmp'
+    #image = 'bird.bmp'
 
+    image = 'face.jpg'
+
+    print("semantic segmentation " + image)
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='/test_data/deeplabv3_mnv2_pascal_quant_edgetpu.tflite',
                         help='Path of the segmentation model.')
