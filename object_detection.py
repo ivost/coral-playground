@@ -1,18 +1,4 @@
 # Lint as: python3
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 r"""
 
 https://github.com/google-coral/pycoral/tree/master/examples
@@ -26,8 +12,8 @@ install the Edge TPU runtime (`libedgetpu.so`) and `tflite_runtime`. For
 device setup instructions, see coral.ai/docs/setup.
 Example usage:
 ```
-bash examples/install_requirements.sh detect_image.py
-python3 examples/detect_image.py \
+bash examples/install_requirements.sh object_detection.py
+python3 examples/object_detection.py \
   --model test_data/ssd_mobilenet_v2_coco_quant_postprocess_edgetpu.tflite \
   --labels test_data/coco_labels.txt \
   --input test_data/grace_hopper.bmp \
@@ -59,6 +45,7 @@ def draw_objects(draw, objs, labels):
 
 
 def main():
+    print('Detect image 1.0')
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-m', '--model',
