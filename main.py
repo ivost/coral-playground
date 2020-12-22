@@ -19,6 +19,7 @@ https://github.com/google-coral/pycoral/tree/master/examples
 
 https://coral.ai/models/
 
+
 Example using PyCoral to detect objects in a given image.
 To run this code, you must attach an Edge TPU attached to the host and
 install the Edge TPU runtime (`libedgetpu.so`) and `tflite_runtime`. For
