@@ -13,7 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-r"""Example using PyCoral to detect objects in a given image.
+r"""
+
+https://github.com/google-coral/pycoral/tree/master/examples
+
+https://coral.ai/models/
+
+Example using PyCoral to detect objects in a given image.
 To run this code, you must attach an Edge TPU attached to the host and
 install the Edge TPU runtime (`libedgetpu.so`) and `tflite_runtime`. For
 device setup instructions, see coral.ai/docs/setup.
@@ -70,13 +76,21 @@ def main():
                         help='Number of times to run inference')
     args = parser.parse_args()
 
+    print('model', args.model)
+    ##
     labels = read_label_file(args.labels) if args.labels else {}
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
 
     image = Image.open(args.input)
-    _, scale = common.set_resized_input(
+    print('image ', image.width, image.height)
+
+    tensor, scale = common.set_resized_input(
         interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
+
+    print('scale', scale)
+
+    print('tensor ', tensor.width, tensor.height)
 
     print('----INFERENCE TIME----')
     print('Note: The first inference is slow because it includes',
