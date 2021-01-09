@@ -13,7 +13,8 @@ python3 examples/classify_image.py \
 """
 
 import argparse
-import time
+
+import timer
 
 from PIL import Image
 from pycoral.adapters import classify
@@ -21,7 +22,7 @@ from pycoral.adapters import common
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
-
+@timer
 def main():
     args = args_parse()
 
@@ -32,17 +33,29 @@ def main():
 
     size = common.input_size(interpreter)
     image = Image.open(args.input).convert('RGB').resize(size, Image.ANTIALIAS)
-    common.set_input(interpreter, image)
 
     print('----INFERENCE TIME----')
-    print('Note: The first inference on Edge TPU is slow because it includes',
-          'loading the model into Edge TPU memory.')
-    for _ in range(args.count):
-        start = time.perf_counter()
+    # print('Note: The first inference on Edge TPU is slow because it includes',
+    #       'loading the model into Edge TPU memory.')
+
+    common.set_input(interpreter, image)
+    interpreter.invoke()
+    classes = classify.get_classes(interpreter, args.top_k, args.threshold)
+    # interpreter.reset_all_variables()
+
+    # start = time.perf_counter()
+    # repeat = args.count
+    repeat = 10
+
+    for _ in range(repeat):
+        # common.set_input(interpreter, image)
         interpreter.invoke()
-        inference_time = time.perf_counter() - start
         classes = classify.get_classes(interpreter, args.top_k, args.threshold)
-        print('%.1fms' % (inference_time * 1000))
+        # interpreter.reset_all_variables()
+
+    inference_time = time.perf_counter() - start
+    print('Total time for %d inferences: %.2f ms' % (repeat, inference_time * 1000))
+    print('Average: %.2f ms' % ((inference_time * 1000)/repeat))
 
     print('-------RESULTS--------')
     for c in classes:
