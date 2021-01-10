@@ -18,6 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 project(minimal C CXX)
+set(BUILD_TYPE "release")
 
 set(TENSORFLOW_SOURCE_DIR "/home/ivo/github/tensorflow" CACHE PATH
   "Directory that contains the TensorFlow project"
