@@ -1,5 +1,27 @@
 # TensorFlow Lite C++ image classification demo
 
+
+INFO: label_image
+--accelerated, -a: [0|1], use Android NNAPI or not
+--allow_fp16, -f: [0|1], allow running fp32 models with fp16 or not
+--count, -c: loop interpreter->Invoke() for certain times
+--gl_backend, -g: [0|1]: use GL GPU Delegate on Android
+--hexagon_delegate, -j: [0|1]: use Hexagon Delegate on Android
+--input_mean, -b: input mean
+--input_std, -s: input standard deviation
+--image, -i: image_name.bmp
+--labels, -l: labels for the model
+--tflite_model, -m: model_name.tflite
+--profiling, -p: [0|1], profiling or not
+--num_results, -r: number of results to show
+--threads, -t: number of threads
+--verbose, -v: [0|1] print more information
+--warmup_runs, -w: number of warmup runs
+--xnnpack_delegate, -x [0:1]: xnnpack delegate
+
+
+
+
 This example shows how you can load a pre-trained and converted
 TensorFlow Lite model and use it to recognize objects in images.
 
