@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 #include <cstdio>
+#include <iostream>
 #include "tensorflow/lite/interpreter.h"
 #include "tensorflow/lite/kernels/register.h"
 #include "tensorflow/lite/model.h"
@@ -22,10 +23,6 @@ limitations under the License.
 // from disk and perform inference. There is no data being loaded
 // that is up to you to add as a user.
 //
-// NOTE: Do not add any dependencies to this that cannot be built with
-// the minimal makefile. This example must remain trivial to build with
-// the minimal build tool.
-//
 // Usage: minimal <tflite model>
 
 #define TFLITE_MINIMAL_CHECK(x)                              \
@@ -34,47 +31,60 @@ limitations under the License.
     exit(1);                                                 \
   }
 
-int main(int argc, char* argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "minimal <tflite model>\n");
-    return 1;
-  }
-  const char* filename = argv[1];
+using namespace std;
 
-  // Load model
-  std::unique_ptr<tflite::FlatBufferModel> model =
-      tflite::FlatBufferModel::BuildFromFile(filename);
-  TFLITE_MINIMAL_CHECK(model != nullptr);
+bool verbose = false;
+//bool verbose = true;
 
-  // Build the interpreter with the InterpreterBuilder.
-  // Note: all Interpreters should be built with the InterpreterBuilder,
-  // which allocates memory for the Intrepter and does various set up
-  // tasks so that the Interpreter can read the provided model.
-  tflite::ops::builtin::BuiltinOpResolver resolver;
-  tflite::InterpreterBuilder builder(*model, resolver);
-  std::unique_ptr<tflite::Interpreter> interpreter;
-  builder(&interpreter);
-  TFLITE_MINIMAL_CHECK(interpreter != nullptr);
+int main(int argc, char *argv[]) {
 
-  // Allocate tensor buffers.
-  TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
-  printf("=== Pre-invoke Interpreter State ===\n");
-  tflite::PrintInterpreterState(interpreter.get());
+    string modelfile = "../../../models/mobilenet/mobilenet_v1_1.0_224_quant.tflite";
 
-  // Fill input buffers
-  // TODO(user): Insert code to fill input tensors.
-  // Note: The buffer of the input tensor with index `i` of type T can
-  // be accessed with `T* input = interpreter->typed_input_tensor<T>(i);`
+    if (argc >= 2) {
+        modelfile = string(argv[1]);
+    }
 
-  // Run inference
-  TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
-  printf("\n\n=== Post-invoke Interpreter State ===\n");
-  tflite::PrintInterpreterState(interpreter.get());
+    cout << "Loading model " << modelfile << endl;
+    // Load model
+    std::unique_ptr<tflite::FlatBufferModel> model =
+            tflite::FlatBufferModel::BuildFromFile(modelfile.c_str());
+    TFLITE_MINIMAL_CHECK(model != nullptr);
 
-  // Read output buffers
-  // TODO(user): Insert getting data out code.
-  // Note: The buffer of the output tensor with index `i` of type T can
-  // be accessed with `T* output = interpreter->typed_output_tensor<T>(i);`
+    // Build the interpreter with the InterpreterBuilder.
+    // Note: all Interpreters should be built with the InterpreterBuilder,
+    // which allocates memory for the Interpreter and does various set up
+    // tasks so that the Interpreter can read the provided model.
+    tflite::ops::builtin::BuiltinOpResolver resolver;
+    tflite::InterpreterBuilder builder(*model, resolver);
+    std::unique_ptr<tflite::Interpreter> interpreter;
+    builder(&interpreter);
+    TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
-  return 0;
+    // Allocate tensor buffers.
+    TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
+
+    interpreter.get();
+    if (verbose) {
+        printf("=== Pre-invoke Interpreter State ===\n");
+        tflite::PrintInterpreterState(interpreter.get());
+    }
+
+    // Fill input buffers
+    // TODO(user): Insert code to fill input tensors.
+    // Note: The buffer of the input tensor with index `i` of type T can
+    // be accessed with `T* input = interpreter->typed_input_tensor<T>(i);`
+
+    // Run inference
+    TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
+    if (verbose) {
+        printf("\n\n=== Post-invoke Interpreter State ===\n");
+        tflite::PrintInterpreterState(interpreter.get());
+    }
+
+    // Read output buffers
+    // TODO(user): Insert getting data out code.
+    // Note: The buffer of the output tensor with index `i` of type T can
+    // be accessed with `T* output = interpreter->typed_output_tensor<T>(i);`
+
+    return 0;
 }
