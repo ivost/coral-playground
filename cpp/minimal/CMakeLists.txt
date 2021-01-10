@@ -39,6 +39,7 @@ add_subdirectory(
 add_executable(minimal
   minimal.cc
 )
+
 target_link_libraries(minimal
   tensorflow-lite
   ${CMAKE_DL_LIBS}
