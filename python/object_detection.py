@@ -32,6 +32,8 @@ from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
+verbose = False
+
 
 def draw_objects(draw, objs, labels):
     """Draws the bounding box and label for each object."""
@@ -45,7 +47,7 @@ def draw_objects(draw, objs, labels):
 
 
 def main():
-    print('Detect image 1.0')
+    print('Simple image detection demo 1.0')
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-m', '--model',
@@ -71,34 +73,54 @@ def main():
     interpreter.allocate_tensors()
 
     image = Image.open(args.input)
-    print('image ', image.width, image.height)
+
+    # size = common.input_size(interpreter)
+    # image = Image.open(args.input).convert('RGB').resize(size, Image.ANTIALIAS)
+
+    #print('image ', image.width, image.height)
 
     tensor, scale = common.set_resized_input(
         interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
 
-    print('scale', scale)
 
-    print('tensor ', tensor.width, tensor.height)
+    # print('scale', scale)
+    # print('tensor ', tensor.width, tensor.height)
 
-    print('----INFERENCE TIME----')
-    print('Note: The first inference is slow because it includes',
-          'loading the model into Edge TPU memory.')
-    for _ in range(args.count):
-        start = time.perf_counter()
+    # print('----INFERENCE TIME----')
+    # print('Note: The first inference is slow because it includes',
+    #       'loading the model into Edge TPU memory.')
+    # common.set_input(interpreter, image)
+    interpreter.invoke()
+    # objs = detect.get_objects(interpreter, args.threshold, scale)
+
+    # repeat = args.count
+    repeat = 10
+
+    start = time.perf_counter()
+
+    for _ in range(repeat):
+        tensor, scale = common.set_resized_input(
+            interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
+        # start2 = time.perf_counter()
         interpreter.invoke()
-        inference_time = time.perf_counter() - start
         objs = detect.get_objects(interpreter, args.threshold, scale)
-        print('%.2f ms' % (inference_time * 1000))
+        # inference_time = time.perf_counter() - start2
+        # print('%.2f ms' % (inference_time * 1000))
 
-    print('-------RESULTS--------')
-    if not objs:
-        print('No objects detected')
+        # if not objs:
+        #     print('No objects detected')
+        #
+        # if verbose:
+        #     print('-------RESULTS--------')
+        #     for obj in objs:
+        #         print(labels.get(obj.id, obj.id))
+        #         print('  id:    ', obj.id)
+        #         print('  score: ', obj.score)
+        #         print('  bbox:  ', obj.bbox)
 
-    for obj in objs:
-        print(labels.get(obj.id, obj.id))
-        print('  id:    ', obj.id)
-        print('  score: ', obj.score)
-        print('  bbox:  ', obj.bbox)
+    inference_time = time.perf_counter() - start
+    print('Total time for %d inferences: %.2f ms' % (repeat, inference_time * 1000))
+    print('Average: %.2f ms' % ((inference_time * 1000)/repeat))
 
     if args.output:
         image = image.convert('RGB')

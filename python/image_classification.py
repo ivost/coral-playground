@@ -17,15 +17,16 @@ python examples/classify_image.py \
 
 import argparse
 
-import timer
+import time
 
 from PIL import Image
+
 from pycoral.adapters import classify
 from pycoral.adapters import common
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
-@timer
+
 def main():
     args = args_parse()
 
@@ -46,15 +47,15 @@ def main():
     classes = classify.get_classes(interpreter, args.top_k, args.threshold)
     # interpreter.reset_all_variables()
 
-    # start = time.perf_counter()
+    start = time.perf_counter()
     # repeat = args.count
     repeat = 10
 
     for _ in range(repeat):
-        # common.set_input(interpreter, image)
+        common.set_input(interpreter, image)
         interpreter.invoke()
         classes = classify.get_classes(interpreter, args.top_k, args.threshold)
-        # interpreter.reset_all_variables()
+        interpreter.reset_all_variables()
 
     inference_time = time.perf_counter() - start
     print('Total time for %d inferences: %.2f ms' % (repeat, inference_time * 1000))
