@@ -33,6 +33,7 @@ from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
 verbose = False
+verbose = True
 
 
 def draw_objects(draw, objs, labels):
@@ -50,13 +51,20 @@ def main():
     print('Simple image detection demo 1.0')
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    # parser.add_argument('-i', '--input',
+    #                     default='/test_data/grace_hopper.bmp',
+    #                     help='File path of image to process')
+
+    parser.add_argument('-i', '--input', default='/test_data/parrot.jpg',
+                        help='Image to be classified.')
+
     parser.add_argument('-m', '--model',
                         help='File path of .tflite file',
                         default='/test_data/ssd_mobilenet_v2_coco_quant_postprocess_edgetpu.tflite')
-    parser.add_argument('-i', '--input',
-                        default='/test_data/grace_hopper.bmp',
-                        help='File path of image to process')
+
     parser.add_argument('-l', '--labels', help='File path of labels file', default='/test_data/coco_labels.txt')
+
     parser.add_argument('-t', '--threshold', type=float, default=0.4,
                         help='Score threshold for detected objects')
     parser.add_argument('-o', '--output',
@@ -91,7 +99,7 @@ def main():
     #       'loading the model into Edge TPU memory.')
     # common.set_input(interpreter, image)
     interpreter.invoke()
-    # objs = detect.get_objects(interpreter, args.threshold, scale)
+    objs = detect.get_objects(interpreter, args.threshold, scale)
 
     # repeat = args.count
     repeat = 10
@@ -99,24 +107,24 @@ def main():
     start = time.perf_counter()
 
     for _ in range(repeat):
-        tensor, scale = common.set_resized_input(
-            interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
+        # tensor, scale = common.set_resized_input(
+        #     interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
         # start2 = time.perf_counter()
         interpreter.invoke()
         objs = detect.get_objects(interpreter, args.threshold, scale)
         # inference_time = time.perf_counter() - start2
         # print('%.2f ms' % (inference_time * 1000))
 
-        # if not objs:
-        #     print('No objects detected')
-        #
-        # if verbose:
-        #     print('-------RESULTS--------')
-        #     for obj in objs:
-        #         print(labels.get(obj.id, obj.id))
-        #         print('  id:    ', obj.id)
-        #         print('  score: ', obj.score)
-        #         print('  bbox:  ', obj.bbox)
+        if not objs:
+            print('No objects detected')
+
+        if verbose:
+            print('-------RESULTS--------')
+            for obj in objs:
+                print(labels.get(obj.id, obj.id))
+                print('  id:    ', obj.id)
+                print('  score: ', obj.score)
+                print('  bbox:  ', obj.bbox)
 
     inference_time = time.perf_counter() - start
     print('Total time for %d inferences: %.2f ms' % (repeat, inference_time * 1000))
