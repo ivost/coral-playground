@@ -22,6 +22,9 @@ def parse_args(name):
     parser.add_argument("-n", "--number",
                         help="Optional. Max number of images to process",
                         default=10, type=int)
+    parser.add_argument("-c", "--confidence",
+                        help="Optional. Min confidence",
+                        default=0.6, type=float)
     parser.add_argument("-q", "--quiet",
                         help="Optional. If specified will show only perf",
                         action='store_true',

@@ -34,11 +34,19 @@ from pycoral.utils.edgetpu import make_interpreter
 
 def main():
     args = init()
+    # must use raw string and valid regex "cat*.jpg" -> "cat.*\.jpg"
+    args.re_path = R'cat.*\.jpg'
     # check how many images are available
-    args.count = util.count_images(args)
-    util.load_images(args)
+    count = util.count_images(args)
+    log.info(f"{args.input}: {count} images matching {args.re_path}")
 
-    log.info(f"{len(args.files)} images")
+    # by default limited to 10
+    util.load_images(args)
+    if len(args.files) == 0:
+        log.info(f"nothing to do")
+        exit(0)
+
+    log.info(f"loaded {len(args.files)} images")
 
     labels = read_label_file(args.labels) if args.labels else {}
 
@@ -47,35 +55,35 @@ def main():
     interpreter.allocate_tensors()
     size = common.input_size(interpreter)
 
-    # image = Image.open(args.input).convert('RGB').resize(size, Image.ANTIALIAS)
-    # 
-    # print('----INFERENCE TIME----')
-    # # print('Note: The first inference on Edge TPU is slow because it includes',
-    # #       'loading the model into Edge TPU memory.')
-    # 
-    # common.set_input(interpreter, image)
-    # interpreter.invoke()
-    # classes = classify.get_classes(interpreter, args.top_k, args.threshold)
-    # # interpreter.reset_all_variables()
-    # 
-    # start = time.perf_counter()
-    # # repeat = args.count
-    # repeat = 10
-    # 
-    # for _ in range(repeat):
-    #     common.set_input(interpreter, image)
-    #     interpreter.invoke()
-    #     classes = classify.get_classes(interpreter, args.top_k, args.threshold)
-    #     interpreter.reset_all_variables()
-    # 
-    # inference_time = time.perf_counter() - start
-    # print('Total time for %d inferences: %.2f ms' % (repeat, inference_time * 1000))
-    # print('Average: %.2f ms' % ((inference_time * 1000)/repeat))
-    # 
-    # print('-------RESULTS--------')
-    # for c in classes:
-    #     print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
+    # Note: The first inference on Edge TPU is slow because it includes
+    # loading the model into Edge TPU memory.
+    image = Image.open(args.files[0]).convert('RGB').resize(size, Image.ANTIALIAS)
+    common.set_input(interpreter, image)
+    interpreter.invoke()
+    classes = classify.get_classes(interpreter, args.top, args.confidence)
 
+    # repeat = args.count
+    repeat = 1
+
+    start = time.perf_counter()
+    total = 0
+    for _ in range(repeat):
+        for file in args.files:
+            log.debug(f"file {file}")
+            image = Image.open(file).convert('RGB').resize(size, Image.ANTIALIAS)
+            common.set_input(interpreter, image)
+            interpreter.invoke()
+            classes = classify.get_classes(interpreter, args.top, args.confidence)
+
+            print('-------RESULTS--------')
+            for c in classes:
+                print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
+            interpreter.reset_all_variables()
+            total += 1
+
+    inference_time = time.perf_counter() - start
+    print('Total time for %d inferences: %.2f ms' % (total, inference_time * 1000))
+    print('Average: %.2f ms' % ((inference_time * 1000)/total))
 
 
 def init():
@@ -83,6 +91,7 @@ def init():
                     level=log.DEBUG, stream=sys.stdout)
     args = parse_args("classification")
     return args
+
 
 if __name__ == '__main__':
     main()

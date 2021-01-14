@@ -16,7 +16,7 @@ def load_images(args):
     return count_or_load_images(args, False)
 
 
-def count_or_load_images(args, countOnly):
+def count_or_load_images(args, count_only):
     path = os.path.abspath(args.input)
     pat = None
     args.files = []
@@ -42,13 +42,13 @@ def count_or_load_images(args, countOnly):
     limit = args.start + args.number
     idx = args.start
     for f in listdir(path):
-        if idx >= limit:
+        if not count_only and idx >= limit:
             break
         if pat is None:
             fp = join(path, f)
             count += 1
             idx += 1
-            if not countOnly:
+            if not count_only:
                 args.files.append(fp)
             continue
         # regex
@@ -58,7 +58,7 @@ def count_or_load_images(args, countOnly):
         fp = join(path, f)
         count += 1
         idx += 1
-        if not countOnly:
+        if not count_only:
             args.files.append(fp)
 
     return count
