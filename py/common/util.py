@@ -32,6 +32,9 @@ def count_or_load_images(args, count_only):
         if not os.path.exists(path):
             return 0
         if os.path.isfile(path):
+            if not count_only:
+                log.debug(f"adding image {path}")
+                args.files.append(path)
             return 1
         if not os.path.isdir(path):
             return 0
@@ -47,6 +50,7 @@ def count_or_load_images(args, count_only):
             count += 1
             idx += 1
             if not count_only:
+                log.debug(f"adding image {count}/{limit}  {fp}")
                 args.files.append(fp)
             continue
         # regex
@@ -54,11 +58,13 @@ def count_or_load_images(args, count_only):
         if m is None:
             continue
         fp = join(path, f)
+        log.debug(f"adding image {count}/{limit}  {fp}")
         count += 1
         idx += 1
         if not count_only:
             args.files.append(fp)
 
+    log.debug(f"{count} images")
     return count
 
 
