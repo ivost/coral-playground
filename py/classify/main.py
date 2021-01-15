@@ -6,12 +6,13 @@ Example usage:
 ```
 bash examples/install_requirements.sh
 
-classify_image.py
+cd ~/coral
 
-python examples/classify_image.py \
+python3 pycoral/examples/classify_image.py \
   --model test_data/mobilenet_v2_1.0_224_inat_bird_quant_edgetpu.tflite  \
   --labels test_data/inat_bird_labels.txt \
-  --input test_data/parrot.jpg
+  --input test_data/images/parrot.jpg
+
 ```
 """
 
@@ -19,8 +20,8 @@ python examples/classify_image.py \
 import logging as log
 import sys
 
-from python.common import util
-from python.common.args import parse_args
+from py.common import util
+from py.common.args import parse_args
 
 import time
 

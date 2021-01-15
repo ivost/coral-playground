@@ -5,7 +5,7 @@ import sys
 from os import listdir
 from os.path import isfile, join
 
-from python.common.args import parse_args
+from py.common.args import parse_args
 
 
 def count_images(args):
