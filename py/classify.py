@@ -20,9 +20,6 @@ python3 pycoral/examples/classify_image.py \
 import logging as log
 import sys
 
-from py.common import util
-from py.common.args import parse_args
-
 import time
 
 from PIL import Image
@@ -32,14 +29,17 @@ from pycoral.adapters import common
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
+from common import util
+from common.args import parse_args
+
 
 def main():
     args = init()
     # must use raw string and valid regex "cat*.jpg" -> "cat.*\.jpg"
-    args.re_path = R'cat.*\.jpg'
+    # args.re_path = R'cat.*\.jpg'
     # check how many images are available
     count = util.count_images(args)
-    log.info(f"{args.input}: {count} images matching {args.re_path}")
+    # log.info(f"{args.input}: {count} images matching {args.re_path}")
 
     # by default limited to 10
     util.load_images(args)
