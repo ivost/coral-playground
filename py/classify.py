@@ -22,8 +22,6 @@ import sys
 
 import time
 
-from PIL import Image
-
 from pycoral.adapters import classify
 from pycoral.adapters import common
 from pycoral.utils.dataset import read_label_file
@@ -32,6 +30,7 @@ from pycoral.utils.edgetpu import make_interpreter
 from common import util
 from common.args import parse_args
 
+verbose = False
 
 def main():
     args = init()

@@ -7,6 +7,8 @@ from os import listdir
 from os.path import isfile, join
 from PIL import Image
 
+verbose = False
+
 
 def count_images(args):
     return count_or_load_images(args, True)
@@ -35,7 +37,8 @@ def count_or_load_images(args, count_only):
             return 0
         if os.path.isfile(path):
             if not count_only:
-                log.debug(f"adding image {path}")
+                if verbose:
+                    log.debug(f"adding image {path}")
                 args.files.append(path)
             return 1
         if not os.path.isdir(path):
@@ -52,7 +55,8 @@ def count_or_load_images(args, count_only):
             count += 1
             idx += 1
             if not count_only:
-                log.debug(f"adding image {count}/{limit}  {fp}")
+                if verbose:
+                    log.debug(f"adding image {count}/{limit}  {fp}")
                 args.files.append(fp)
             continue
         # regex
@@ -60,13 +64,15 @@ def count_or_load_images(args, count_only):
         if m is None:
             continue
         fp = join(path, f)
-        log.debug(f"adding image {count}/{limit}  {fp}")
         count += 1
         idx += 1
         if not count_only:
+            if verbose:
+                log.debug(f"adding image {count}/{limit}  {fp}")
             args.files.append(fp)
 
-    log.debug(f"{count} images")
+    if verbose:
+        log.debug(f"{count} images")
     return count
 
 
@@ -74,13 +80,14 @@ def preproces_images(args):
     result = []
     start = time.perf_counter()
     for file in args.files:
-        #log.debug(f"file {file}")
+        # log.debug(f"file {file}")
         result.append(Image.open(file).convert('RGB').resize(args.size, Image.ANTIALIAS))
 
-    duration = (time.perf_counter() - start)/1000
+    duration = (time.perf_counter() - start) / 1000
     if duration > 10:
         log.debug(f"preprocessing took {duration} ms")
     return result
+
 
 def test():
     log.basicConfig(format="[ %(levelname)s ] %(message)s",
