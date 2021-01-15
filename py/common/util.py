@@ -2,6 +2,7 @@ import logging as log
 import os
 import re
 import sys
+import time
 from os import listdir
 from os.path import isfile, join
 from PIL import Image
@@ -71,10 +72,14 @@ def count_or_load_images(args, count_only):
 
 def preproces_images(args):
     result = []
+    start = time.perf_counter()
     for file in args.files:
-        log.debug(f"file {file}")
+        #log.debug(f"file {file}")
         result.append(Image.open(file).convert('RGB').resize(args.size, Image.ANTIALIAS))
 
+    duration = (time.perf_counter() - start)/1000
+    if duration > 10:
+        log.debug(f"preprocessing took {duration} ms")
     return result
 
 def test():

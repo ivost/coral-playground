@@ -74,16 +74,15 @@ def main():
             common.set_input(interpreter, image)
             interpreter.invoke()
             classes = classify.get_classes(interpreter, args.top, args.confidence)
-            inference_time = time.perf_counter() - start
-            inference_duration += inference_time
+            inference_duration += time.perf_counter() - start
             #print('-------RESULTS--------')
             # for c in classes:
             #     print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
             #interpreter.reset_all_variables()
             total += 1
 
-    print('Total time for %d total inferences: %.2f ms' % (total, inference_time * 1000))
-    print('Average: %.2f ms' % ((inference_time * 1000)/total))
+    print('Total time for %d total inferences: %.2f ms' % (total, inference_duration * 1000))
+    print('Average: %.2f ms' % ((inference_duration * 1000)/total))
 
 
 def init():
