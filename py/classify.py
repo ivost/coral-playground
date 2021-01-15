@@ -54,36 +54,35 @@ def main():
     interpreter = make_interpreter(args.model)
 
     interpreter.allocate_tensors()
-    size = common.input_size(interpreter)
-
+    args.size = common.input_size(interpreter)
+    images = util.preproces_images(args)
     # Note: The first inference on Edge TPU is slow because it includes
     # loading the model into Edge TPU memory.
-    image = Image.open(args.files[0]).convert('RGB').resize(size, Image.ANTIALIAS)
+    image = images[0]
     common.set_input(interpreter, image)
     interpreter.invoke()
     classes = classify.get_classes(interpreter, args.top, args.confidence)
 
     # repeat = args.count
-    repeat = 1
+    repeat = 100
 
-    start = time.perf_counter()
+    inference_duration = 0
     total = 0
     for _ in range(repeat):
-        for file in args.files:
-            log.debug(f"file {file}")
-            image = Image.open(file).convert('RGB').resize(size, Image.ANTIALIAS)
+        for image in images:
+            start = time.perf_counter()
             common.set_input(interpreter, image)
             interpreter.invoke()
             classes = classify.get_classes(interpreter, args.top, args.confidence)
-
-            print('-------RESULTS--------')
-            for c in classes:
-                print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
-            interpreter.reset_all_variables()
+            inference_time = time.perf_counter() - start
+            inference_duration += inference_time
+            #print('-------RESULTS--------')
+            # for c in classes:
+            #     print('%s: %.5f' % (labels.get(c.id, c.id), c.score))
+            #interpreter.reset_all_variables()
             total += 1
 
-    inference_time = time.perf_counter() - start
-    print('Total time for %d inferences: %.2f ms' % (total, inference_time * 1000))
+    print('Total time for %d total inferences: %.2f ms' % (total, inference_time * 1000))
     print('Average: %.2f ms' % ((inference_time * 1000)/total))
 
 

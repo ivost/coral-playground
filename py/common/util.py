@@ -4,6 +4,7 @@ import re
 import sys
 from os import listdir
 from os.path import isfile, join
+from PIL import Image
 
 
 def count_images(args):
@@ -67,6 +68,14 @@ def count_or_load_images(args, count_only):
     log.debug(f"{count} images")
     return count
 
+
+def preproces_images(args):
+    result = []
+    for file in args.files:
+        log.debug(f"file {file}")
+        result.append(Image.open(file).convert('RGB').resize(args.size, Image.ANTIALIAS))
+
+    return result
 
 def test():
     log.basicConfig(format="[ %(levelname)s ] %(message)s",
