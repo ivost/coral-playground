@@ -91,7 +91,8 @@ def main():
             objects = detect.get_objects(interpreter, args.threshold, scale)
             if not objects:
                 failed += 1
-                print(f"No objects detected, image {path}")
+                if args.verbose > 0:
+                    print(f"No objects detected, image {path}")
                 continue
             inference_duration += time.perf_counter() - t1
             # inference results
