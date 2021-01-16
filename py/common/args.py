@@ -31,7 +31,8 @@ def parse_args(name):
                         default=False)
     parser.add_argument("-t", "--top", help="Optional. Number of top results", default=3, type=int)
     parser.add_argument("-v", "--verbose",
-                        help="Optional. Use for debugging",
+                        help="Optional verbosity level. Use for debugging",
+                        type=int,
                         default=0)
 
     args = parser.parse_args()

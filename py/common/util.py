@@ -9,9 +9,6 @@ from pathlib import Path
 
 from PIL import Image
 
-verbose = False
-verbose = True
-
 
 def count_images(args):
     return count_or_load_images(args, True)
@@ -19,6 +16,7 @@ def count_images(args):
 
 def load_images(args):
     return count_or_load_images(args, False)
+
 
 # todo: change regex to pathlib.glob
 def count_or_load_images(args, count_only):
@@ -40,7 +38,7 @@ def count_or_load_images(args, count_only):
             return 0
         if os.path.isfile(path):
             if not count_only:
-                if verbose:
+                if args.verbose > 0:
                     log.debug(f"adding image {path}")
                 args.files.append(path)
             return 1
@@ -57,10 +55,12 @@ def count_or_load_images(args, count_only):
             continue
         if pat is None:
             fp = join(path, f)
+            if Path(fp).is_dir():
+                continue
             count += 1
             idx += 1
             if not count_only:
-                if verbose:
+                if args.verbose > 1:
                     log.debug(f"adding image {count}/{limit}  {fp}")
                 args.files.append(fp)
             continue
@@ -72,11 +72,11 @@ def count_or_load_images(args, count_only):
         count += 1
         idx += 1
         if not count_only:
-            if verbose:
+            if args.verbose > 1:
                 log.debug(f"adding image {count}/{limit}  {fp}")
             args.files.append(fp)
 
-    if verbose:
+    if args.verbose > 1:
         log.debug(f"{count} images")
     return count
 
