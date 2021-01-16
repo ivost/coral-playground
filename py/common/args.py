@@ -19,7 +19,7 @@ def parse_args(name):
     parser.add_argument("-s", "--start",
                         help="Optional. Start index (when directory)",
                         default=0, type=int)
-    parser.add_argument("-n", "--number",
+    parser.add_argument("-n", "--count",
                         help="Optional. Max number of images to process",
                         default=10, type=int)
     parser.add_argument("-c", "--confidence",
@@ -29,9 +29,12 @@ def parse_args(name):
                         help="Optional. If specified will show only perf",
                         action='store_true',
                         default=False)
-    parser.add_argument("-tn", "--top", help="Optional. Number of top results", default=3, type=int)
+    parser.add_argument("-t", "--top", help="Optional. Number of top results", default=3, type=int)
+    parser.add_argument("-v", "--verbose",
+                        help="Optional. Use for debugging",
+                        default=0)
 
     args = parser.parse_args()
-    if args.number > 100:
-        args.number = 100
+    # if args.number > 100:
+    #     args.number = 100
     return args

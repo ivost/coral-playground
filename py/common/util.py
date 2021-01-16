@@ -5,6 +5,8 @@ import sys
 import time
 from os import listdir
 from os.path import isfile, join
+from pathlib import Path
+
 from PIL import Image
 
 verbose = False
@@ -18,7 +20,7 @@ def count_images(args):
 def load_images(args):
     return count_or_load_images(args, False)
 
-
+# todo: change regex to pathlib.glob
 def count_or_load_images(args, count_only):
     path = os.path.abspath(args.input)
     pat = None
@@ -46,11 +48,13 @@ def count_or_load_images(args, count_only):
             return 0
 
     count = 0
-    limit = args.start + args.number
+    limit = args.start + args.count
     idx = args.start
     for f in listdir(path):
         if not count_only and idx >= limit:
             break
+        if Path(f).is_dir():
+            continue
         if pat is None:
             fp = join(path, f)
             count += 1
@@ -81,7 +85,10 @@ def preproces_images(args):
     result = []
     start = time.perf_counter()
     for file in args.files:
-        # log.debug(f"file {file}")
+        if Path(file).is_dir():
+            continue
+        if args.verbose > 1:
+            log.debug(f"file {file}")
         result.append(Image.open(file).convert('RGB').resize(args.size, Image.ANTIALIAS))
 
     duration = (time.perf_counter() - start) / 1000
@@ -104,14 +111,14 @@ def test():
     assert 0 <= n <= 100
 
     args.start = n - 2
-    args.number = 5
+    args.count = 5
     load_images(args)
     m = len(args.files)
     assert 0 <= m <= 5
 
     # must use raw string and valid regex "cat*.jpg" -> "cat.*\.jpg"
     args.re_path = R'cat.*\.jpg'
-    args.start = 0
+    args.count = 0
     args.number = 3
     m = count_images(args)
     load_images(args)
