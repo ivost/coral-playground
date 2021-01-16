@@ -52,12 +52,9 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    # parser.add_argument('-i', '--input',
-    #                     default='/test_data/grace_hopper.bmp',
-    #                     help='File path of image to process')
-
-    parser.add_argument('-i', '--input', default='/test_data/parrot.jpg',
-                        help='Image to be classified.')
+    parser.add_argument('-i', '--input',
+                        default='/test_data/grace_hopper.bmp',
+                        help='File path of image to process')
 
     parser.add_argument('-m', '--model',
                         help='File path of .tflite file',
@@ -102,7 +99,7 @@ def main():
     objs = detect.get_objects(interpreter, args.threshold, scale)
 
     # repeat = args.count
-    repeat = 10
+    repeat = 1
 
     start = time.perf_counter()
 

@@ -6,6 +6,8 @@ Example usage:
 ```
 bash examples/install_requirements.sh
 
+-n 2 --verbose 1 --input /home/ivo/Pictures/birds --model  ./models/mobilenet/mobilenet_v2_1.0_224_inat_bird_quant_edgetpu.tflite
+
 cd ~/coral
 
 python3 pycoral/examples/classify_image.py \
@@ -57,14 +59,14 @@ def main():
     if count < args.count:
         args.count = count
 
-    log.info(f"Loading {args.count} images from {args.input} with total {count} images")
+    log.info(f"Loading {args.count} image(s) from {args.input} with total {count} image(s)")
 
     util.load_images(args)
     if len(args.files) == 0:
         log.info(f"empty input set")
         exit(0)
 
-    log.info(f"Loaded {len(args.files)} images")
+    log.info(f"Loaded {len(args.files)} image(s)")
 
     labels = read_label_file(args.labels) if args.labels else {}
 
