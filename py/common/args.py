@@ -16,6 +16,9 @@ def parse_args(name):
                         default='/test_data/inat_bird_labels.txt',
                         # env_var="LABELS",
                         type=str)
+    parser.add_argument("-o", "--output", help="Optional. Path to output directory.",
+                        default=None,
+                        type=str)
     parser.add_argument("-s", "--start",
                         help="Optional. Start index (when directory)",
                         default=0, type=int)

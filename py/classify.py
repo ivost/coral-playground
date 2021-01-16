@@ -49,10 +49,15 @@ def main():
     # log.info(f"{args.input}: {count} images matching {args.re_path}")
     # args.input = INPUT_DIR
     assert os.path.exists(args.input)
-    out_dir = Path(args.input, "..", "results").absolute()
-    failed_dir = Path(out_dir, "not-classified")
-    if not failed_dir.exists():
-        os.makedirs(failed_dir)
+    out_dir = None
+    failed_dir = None
+    if args.output:
+        out_dir = Path(args.output, "results").absolute()
+        if not out_dir.exists():
+            os.makedirs(out_dir)
+        failed_dir = Path(out_dir, "not-classified")
+        if not failed_dir.exists():
+            os.makedirs(failed_dir)
 
     # by default max files is 10
     count = util.count_images(args)
@@ -112,11 +117,13 @@ def main():
                         log.debug(f"{c.id:4d} - {labels.get(c.id, c.id)}, {c.score:5.2f}")
             if cid > 0:
                 count += 1
-                util.copy_to_dir(args, src_file_path=path, dest_dir_path=Path(out_dir, str(cid)))
+                if out_dir:
+                    util.copy_to_dir(args, src_file_path=path, dest_dir_path=Path(out_dir, str(cid)))
                 continue
 
             failed += 1
-            util.copy_to_dir(args, src_file_path=path, dest_dir_path=failed_dir)
+            if failed_dir:
+                util.copy_to_dir(args, src_file_path=path, dest_dir_path=failed_dir)
 
     dur = time.perf_counter() - t0
     avg = (inference_duration * 1000) / total
@@ -124,7 +131,9 @@ def main():
     log.info(f"Inference time: {inference_duration*1000:.0f} ms")
     log.info(f"       Average: {avg:.2f} ms")
     log.info(f"  Elapsed time: {dur*1000:.0f} ms")
-    log.info(f"  END - results are in {out_dir}")
+    if out_dir:
+        log.info(f"Results are in {out_dir}")
+    log.info(f"  END")
 
 
 def init():

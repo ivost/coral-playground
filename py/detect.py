@@ -111,7 +111,7 @@ def main():
 
     dur = time.perf_counter() - t0
     avg = (inference_duration * 1000) / total
-    log.info(f"  Total images: {total}, not classified: {failed}")
+    log.info(f"  Total images: {total}, nothing detected on {failed}")
     log.info(f"Inference time: {inference_duration*1000:.0f} ms")
     log.info(f"       Average: {avg:.2f} ms")
     log.info(f"  Elapsed time: {dur*1000:.0f} ms")
