@@ -18,7 +18,6 @@ python3 pycoral/examples/classify_image.py \
 
 import logging as log
 import os
-import shutil
 import sys
 
 import time
@@ -33,7 +32,6 @@ from common import util
 from common.args import parse_args
 
 # todo: add to args
-
 CLASS = "birds"
 IGNORE_IDS = [964]
 version = "v.2021.1.16"
@@ -46,7 +44,6 @@ def main():
     # must use raw string and valid regex "cat*.jpg" -> "cat.*\.jpg"
     # args.re_path = R'cat.*\.jpg'
     # check how many images are available
-
     # log.info(f"{args.input}: {count} images matching {args.re_path}")
     # args.input = INPUT_DIR
     assert os.path.exists(args.input)
