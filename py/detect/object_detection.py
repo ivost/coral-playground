@@ -134,7 +134,7 @@ def main():
         image = image.convert('RGB')
         draw_objects(ImageDraw.Draw(image), objs, labels)
         image.save(args.output)
-        image.show()
+        # image.show()
 
 
 if __name__ == '__main__':

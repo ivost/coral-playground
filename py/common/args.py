@@ -24,7 +24,7 @@ def parse_args(name):
                         default=10, type=int)
     parser.add_argument("-c", "--confidence",
                         help="Optional. Min confidence",
-                        default=0.6, type=float)
+                        default=0.4, type=float)
     parser.add_argument("-q", "--quiet",
                         help="Optional. If specified will show only perf",
                         action='store_true',

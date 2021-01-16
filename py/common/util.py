@@ -8,6 +8,7 @@ from os.path import isfile, join
 from PIL import Image
 
 verbose = False
+verbose = True
 
 
 def count_images(args):
