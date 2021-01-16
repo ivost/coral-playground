@@ -1,6 +1,7 @@
 import logging as log
 import os
 import re
+import shutil
 import sys
 import time
 from os import listdir
@@ -92,9 +93,20 @@ def preproces_images(args):
         result.append(Image.open(file).convert('RGB').resize(args.size, Image.ANTIALIAS))
 
     duration = (time.perf_counter() - start) / 1000
-    if duration > 10:
+    if duration > 2:
         log.debug(f"preprocessing took {duration} ms")
     return result
+
+
+def copy_to_dir(args, src_file_path, dest_dir_path):
+    if not dest_dir_path.exists():
+        os.makedirs(dest_dir_path)
+    dest = Path(dest_dir_path, src_file_path.name)
+    if dest.exists():
+        return False
+    if args.verbose > 1:
+        log.debug(f"Copying {src_file_path.name} to {dest_dir_path}")
+    shutil.copy2(src_file_path, dest_dir_path)
 
 
 def test():
