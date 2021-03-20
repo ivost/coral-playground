@@ -16,7 +16,7 @@ class ExtendedEnvInterpolation(configparser.ExtendedInterpolation):
 class Config:
     def __init__(self, log_level=log.DEBUG):
         log.basicConfig(format="[ %(levelname)s ] %(message)s", level=log_level, stream=sys.stdout)
-        #self.cp = configparser.ConfigParser(interpolation=ExtendedEnvInterpolation())
+        # self.cp = configparser.ConfigParser(interpolation=ExtendedEnvInterpolation())
         self.cp = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 
     @staticmethod
@@ -43,19 +43,13 @@ if __name__ == '__main__':
     # self-test
     c = Config()
     c.read("config.ini")
-
     inp: Path = Config.existing_path(c.network.model)
     assert inp.exists()
-
     log.debug(f"network.model: {c.network.model}")
     log.debug(f"network: {c.network}")
-
     top = int(c.network.top)
     assert top == 1
-
     if not os.path.exists(c.output.dir):
         os.makedirs(c.output.dir, exist_ok=True)
-
     assert os.path.isdir(c.output.dir)
-
     assert c.output.type == "mp4"
