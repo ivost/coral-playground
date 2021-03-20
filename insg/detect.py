@@ -26,7 +26,7 @@ from common import util
 from common.args import parse_args
 
 
-version = "v.2021.1.16"
+version = "v.2021.3.19"
 
 
 def main():
