@@ -6,6 +6,10 @@ import numpy as np
 
 from insg.common.config import Config
 from insg.common.imageproc import ImageProc
+from pycoral.adapters import common
+from pycoral.adapters import detect
+from pycoral.utils.dataset import read_label_file
+from pycoral.utils.edgetpu import make_interpreter
 
 
 class Engine:
@@ -18,87 +22,37 @@ class Engine:
         self.c.read(config_ini)
 
         n = self.c.network
-        # todo
-        self.width = 300
-        self.height = 300
-        self.size = (self.width, self.height)
 
         # self.model = Config.existing_path(n.model)
         # self.weights = Config.existing_path(n.weights)
         model = Config.existing_path(n.model)
+        model = str(model)
         self.input = Config.existing_path(self.c.input.images)
         labels = Config.existing_path(n.labels)
-
-        with open(labels, 'r') as file:
-            self.labels = [line.split(sep=' ', maxsplit=1)[-1].strip() for line in file]
-            log.debug(f"{len(self.labels)} labels")
-
-        # initialize openvino engine
-        log.info(f"Initializing Coral")
-
-        #### TODO
-
+        # with open(labels, 'r') as file:
+        #     self.labels = [line.split(sep=' ', maxsplit=1)[-1].strip() for line in file]
+        #     log.debug(f"{len(self.labels)} labels")
+        self.labels = read_label_file(labels)
         log.info(f"Loading model: {model}")
 
         self.img_proc = ImageProc(self.c)
         self.img_proc.prepare()
+
+        # initialize coral
+        log.info(f"Initializing Coral")
+        self.coral = make_interpreter(model)
+        self.coral.allocate_tensors()
+        self.size = common.input_size(self.coral)
+        # tensor, scale = common.set_resized_input(
+        #     self.coral, self.size, lambda size: image.resize(size, Image.ANTIALIAS))
+
         return
 
     def prepare_input(self, images):
         pass
-        ### net = self.net
-        # log.("Preparing input blobs")
-        input_name, input_info_name = "", ""
-        # for input_key in net.input_info:
-        #     el = net.input_info[input_key]
-        #     if len(el.layout) == 4:
-        #         input_name = input_key
-        #         net.input_info[input_key].precision = 'U8'
-        #     elif len(net.input_info[input_key].layout) == 2:
-        #         input_info_name = input_key
-        #         el.precision = 'FP32'
-        #         if (el.input_data.shape[1] != 3 and
-        #             el.input_data.shape[1] != 6) or \
-        #                 el.input_data.shape[0] != 1:
-        #             log.error('Invalid input info. Should be 3 or 6 values length.')
-        # data = {input_name: images}
-        # if input_info_name != "":
-        #     log.info(f"input_info_name {input_info_name}, input_name {input_name}")
-        #     infos = np.ndarray(shape=(self.batch_size, self.channels), dtype=float)
-        #     for i in range(self.batch_size):
-        #         infos[i, 0] = self.height
-        #         infos[i, 1] = self.width
-        #         infos[i, 2] = 1.0
-        #     data[input_info_name] = infos
-        # return data
 
     def model_check(self):
         pass
-        # net = self.net
-        # # log.info('Preparing output blobs')
-        # output_name, output_info = "", net.outputs[next(iter(net.outputs.keys()))]
-        # output_ops = {op.friendly_name: op for op in self.ops
-        #               if op.friendly_name in net.outputs and op.get_type_name() == "DetectionOutput"}
-        #
-        # if len(output_ops) != 0:
-        #     output_name, output_info = output_ops.popitem()
-        #
-        # if output_name == "":
-        #     log.error("Can't find a DetectionOutput layer in the topology")
-        #     return False
-        #
-        # output_dims = output_info.shape
-        # if len(output_dims) != 4:
-        #     log.error("Incorrect output dimensions for SSD model")
-        #     return False
-        #
-        # max_proposal_count, object_size = output_dims[2], output_dims[3]
-        #
-        # if object_size != 7:
-        #     log.error("Output item should have 7 as a last dimension")
-        #
-        # output_info.precision = "FP32"
-        #return True
 
     def process_classification_results(self, result, idx):
         # from config

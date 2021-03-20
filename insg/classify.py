@@ -38,7 +38,7 @@ from insg.engine import Engine
 
 CLASS = "birds"
 IGNORE_IDS = [964]
-version = "v.2021.3.19"
+version = "v.2021.3.20"
 
 
 class Classify(Engine):
@@ -49,33 +49,30 @@ class Classify(Engine):
     def main(self):
         stats = Stats()
         repeat = 1 # int(self.c.input.repeat)
-        stats.begin()
         img_proc = self.img_proc
-        img_proc.preprocess_images(self.size)
+        images = img_proc.preprocess_images(self.size)
         log.info(f"{len(self.img_proc.files)} images")
         log.info(f"repeating {repeat} time(s)")
+        stats.begin()
+        exclude = [964]
         for _ in range(repeat):
-            print(".", end="", flush=True)
-            # assuming batch size = 1
             for idx in range(len(self.img_proc.files)):
-                images, images_hw = self.img_proc.preprocess_batch(idx, self.batch_size, self.channels, self.height, self.width)
-                ###############################
-                # inference
+                common.set_input(self.coral, images[idx])
+                self.coral.invoke()
                 stats.mark()
-
-                # res = self.network.infer(inputs={self.input_blob: images})
-                # failed = not self.process_classification_results(res, idx)
-
-                failed = 0
+                classes = classify.get_classes(self.coral, 3, 0.1)
+                failed = 1
+                for c in classes:
+                    if c.id not in exclude:
+                        failed = 0
+                        log.info(f'{c.score} - {c.id}: {self.labels.get(c.id, c.id)}')
                 stats.bump(failed)
-                ###############################
         stats.end()
-        print("", flush=True)
         log.info(stats.summary())
 
 
 if __name__ == '__main__':
-    c = Classify()
+    c = Classify(log_level=log.DEBUG)
     c.main()
 
 
