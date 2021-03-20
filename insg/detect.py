@@ -1,6 +1,7 @@
 
 import logging as log
 import time
+from pathlib import Path
 
 from PIL import ImageDraw
 from pycoral.adapters import common
@@ -32,11 +33,12 @@ class Detect(Engine):
         log.info(f"Initializing")
         log.info(f"Image preparation, size: {self.size}")
         images = img_proc.preprocess_images(self.size)
-        log.info(f"{len(images)} images")
+        log.info(f"{len(images)} image(s)")
 
         image = images[0]
         scale = (1.0, 1.0)
         conf = float(self.c.network.confidence)
+        preview = "true" in str(self.c.output.preview).lower()
         log.debug(f"confidence {conf}")
         common.set_input(self.coral, image)
         self.coral.invoke()
@@ -54,34 +56,21 @@ class Detect(Engine):
                 if not objects:
                     failed += 1
                     continue
-                # inference results
-                for obj in objects:
-                    label = self.labels.get(obj.id, obj.id)
-                    log.debug(f"{obj.score:.2f} {obj.id} {label}")
+                img = self.detection_results_original(objects, file)
+                if preview:
+                    img.show()
+                p: str = self.generate_image_out_path(file)
+                img.save(p)
+                # image = self.detection_results(objects, image)
+                # image.show()
 
-                # image = image.convert('RGB')
-                draw_objects(ImageDraw.Draw(image), objects, self.labels)
-                # # image.save(args.output)
-                # # todo: either move cv2 or use tk
-                image.show()
-
-                # if cid > 0:
-                #     count += 1
-                #     util.copy_to_dir(args, src_file_path=path, dest_dir_path=Path(out_dir, str(cid)))
-                #     continue
-                # util.copy_to_dir(args, src_file_path=path, dest_dir_path=failed_dir)
-
-
-def draw_objects(draw, objs, labels):
-    """Draws the bounding box and label for each object."""
-    for obj in objs:
-        label = labels.get(obj.id, obj.id)
-        bbox = obj.bbox
-        pos = (bbox.xmin + 2, bbox.ymin + 2)
-        # draw.font()
-        # draw.textsize(2)
-        draw.rectangle([(bbox.xmin, bbox.ymin), (bbox.xmax, bbox.ymax)], outline='yellow')
-        draw.text(pos, f"{obj.score:.2f}-{label}", fill='yellow')
+    def generate_image_out_path(self, file):
+        name = Path(file).stem
+        type = Path(file).suffix
+        model = Path(self.model).stem
+        img = Path(self.c.output.dir, name + "_" + model + type)
+        log.info(f"Output image: {str(img)}")
+        return str(img)
 
 
 if __name__ == '__main__':

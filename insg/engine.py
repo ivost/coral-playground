@@ -3,6 +3,8 @@ import sys
 
 import cv2
 import numpy as np
+from PIL import Image, ImageDraw
+from pycoral.adapters.detect import BBox
 
 from insg.common.config import Config
 from insg.common.imageproc import ImageProc
@@ -10,6 +12,7 @@ from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
+
 
 
 class Engine:
@@ -23,28 +26,21 @@ class Engine:
 
         n = self.c.network
 
-        # self.model = Config.existing_path(n.model)
-        # self.weights = Config.existing_path(n.weights)
         model = Config.existing_path(n.model)
-        model = str(model)
+        self.model = str(model)
         self.input = Config.existing_path(self.c.input.images)
         labels = Config.existing_path(n.labels)
-        # with open(labels, 'r') as file:
-        #     self.labels = [line.split(sep=' ', maxsplit=1)[-1].strip() for line in file]
-        #     log.debug(f"{len(self.labels)} labels")
         self.labels = read_label_file(labels)
-        log.info(f"Loading model: {model}")
+        log.info(f"Loading model: {self.model}")
 
         self.img_proc = ImageProc(self.c)
         self.img_proc.prepare()
 
         # initialize coral
         log.info(f"Initializing Coral")
-        self.coral = make_interpreter(model)
+        self.coral = make_interpreter(self.model)
         self.coral.allocate_tensors()
         self.size = common.input_size(self.coral)
-        # tensor, scale = common.set_resized_input(
-        #     self.coral, self.size, lambda size: image.resize(size, Image.ANTIALIAS))
 
         return
 
@@ -53,6 +49,35 @@ class Engine:
 
     def model_check(self):
         pass
+
+    def detection_results_original(self, objects, original_file):
+        log.info(f"process_detection_results {original_file} - {len(objects)} objects")
+        img: Image = Image.open(original_file).convert('RGB')
+        img.load()
+        ax = img.size[0] / self.size[0]
+        ay = img.size[1] / self.size[1]
+        # log.debug(f"original size: {img.size}, proc.size: {self.size}")
+        # log.debug(f"ax: {ax}, ay: {ay}")
+        return self.draw_boxes(objects, img, ax, ay)
+
+    def detection_results(self, objects, img):
+        return self.draw_boxes(objects, img)
+
+    def draw_boxes(self, objects, img, ax=1, ay=1):
+        canvas = ImageDraw.Draw(img)
+        for obj in objects:
+            label = self.labels.get(obj.id, obj.id)
+            log.debug(f"{obj.score:.2f} {label}")
+            if ax != 1 and ay != 1:
+                bb = obj.bbox.scale(ax, ay).map(int)
+            else:
+                bb = obj.bbox
+
+            canvas.rectangle([(bb.xmin, bb.ymin), (bb.xmax, bb.ymax)], outline='yellow')
+            pos = (bb.xmin + 4, bb.ymin + 4)
+            canvas.text(pos, f"{obj.score:.2f}-{label}", fill='yellow')
+        return img
+
 
     def process_classification_results(self, result, idx):
         # from config
@@ -82,7 +107,7 @@ class Engine:
         #     return count > 0
         return
 
-    def process_detection_results(self, res, img_file, images_hw):
+    # def process_detection_results(self, res, img_file, images_hw):
         # out_blob = self.out_blob
         # res = res[out_blob]
         # boxes, classes = {}, {}
@@ -122,7 +147,7 @@ class Engine:
         #
         # if ih > 0 and iw > 0:
         #     self.display_result(img_file, classes, boxes, ih, iw)
-        return
+        # return
 
     def display_result(self, img_file, classes, boxes, ih, iw):
         pass
@@ -165,6 +190,13 @@ class Engine:
         #     cv2.waitKey(0)
         #     cv2.destroyAllWindows()
         # return
+
+
+# if cid > 0:
+#     count += 1
+#     util.copy_to_dir(args, src_file_path=path, dest_dir_path=Path(out_dir, str(cid)))
+#     continue
+# util.copy_to_dir(args, src_file_path=path, dest_dir_path=failed_dir)
 
 
 if __name__ == '__main__':
