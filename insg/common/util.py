@@ -11,75 +11,75 @@ from pathlib import Path
 from PIL import Image
 
 
-# def count_images(args):
-#     return count_or_load_images(args, True)
-#
-#
-# def load_images(args):
-#     return count_or_load_images(args, False)
-#
-#
-# # todo: change regex to pathlib.glob
-# def count_or_load_images(args, count_only):
-#     path = os.path.abspath(args.input)
-#     pat = None
-#     args.files = []
-#     if not hasattr(args, 're_path') or args.re_path is None:
-#         args.re_path = None
-#     else:
-#         rex = args.re_path
-#         try:
-#             pat = re.compile(rex)
-#         except Exception as err:
-#             log.error(f"Invalid regex {rex} {err}")
-#             return 0
-#
-#     if args.re_path is None:
-#         if not os.path.exists(path):
-#             return 0
-#         if os.path.isfile(path):
-#             if not count_only:
-#                 if args.verbose > 0:
-#                     log.debug(f"adding image {path}")
-#                 args.files.append(path)
-#             return 1
-#         if not os.path.isdir(path):
-#             return 0
-#
-#     count = 0
-#     limit = args.start + args.count
-#     idx = args.start
-#     for f in listdir(path):
-#         if not count_only and idx >= limit:
-#             break
-#         if Path(f).is_dir():
-#             continue
-#         if pat is None:
-#             fp = join(path, f)
-#             if Path(fp).is_dir():
-#                 continue
-#             count += 1
-#             idx += 1
-#             if not count_only:
-#                 if args.verbose > 1:
-#                     log.debug(f"adding image {count}/{limit}  {fp}")
-#                 args.files.append(fp)
-#             continue
-#         # regex
-#         m = pat.match(f)
-#         if m is None:
-#             continue
-#         fp = join(path, f)
-#         count += 1
-#         idx += 1
-#         if not count_only:
-#             if args.verbose > 1:
-#                 log.debug(f"adding image {count}/{limit}  {fp}")
-#             args.files.append(fp)
-#
-#     if args.verbose > 1:
-#         log.debug(f"{count} images")
-#     return count
+def count_images(args):
+    return count_or_load_images(args, True)
+
+
+def load_images(args):
+    return count_or_load_images(args, False)
+
+
+# todo: change regex to pathlib.glob
+def count_or_load_images(args, count_only):
+    path = os.path.abspath(args.input)
+    pat = None
+    args.files = []
+    if not hasattr(args, 're_path') or args.re_path is None:
+        args.re_path = None
+    else:
+        rex = args.re_path
+        try:
+            pat = re.compile(rex)
+        except Exception as err:
+            log.error(f"Invalid regex {rex} {err}")
+            return 0
+
+    if args.re_path is None:
+        if not os.path.exists(path):
+            return 0
+        if os.path.isfile(path):
+            if not count_only:
+                if args.verbose > 0:
+                    log.debug(f"adding image {path}")
+                args.files.append(path)
+            return 1
+        if not os.path.isdir(path):
+            return 0
+
+    count = 0
+    limit = args.start + args.count
+    idx = args.start
+    for f in listdir(path):
+        if not count_only and idx >= limit:
+            break
+        if Path(f).is_dir():
+            continue
+        if pat is None:
+            fp = join(path, f)
+            if Path(fp).is_dir():
+                continue
+            count += 1
+            idx += 1
+            if not count_only:
+                if args.verbose > 1:
+                    log.debug(f"adding image {count}/{limit}  {fp}")
+                args.files.append(fp)
+            continue
+        # regex
+        m = pat.match(f)
+        if m is None:
+            continue
+        fp = join(path, f)
+        count += 1
+        idx += 1
+        if not count_only:
+            if args.verbose > 1:
+                log.debug(f"adding image {count}/{limit}  {fp}")
+            args.files.append(fp)
+
+    if args.verbose > 1:
+        log.debug(f"{count} images")
+    return count
 
 
 def preproces_images(args):

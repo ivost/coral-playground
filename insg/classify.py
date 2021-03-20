@@ -36,7 +36,7 @@ from common.args import parse_args
 # todo: add to args
 CLASS = "birds"
 IGNORE_IDS = [964]
-version = "v.2021.1.16"
+version = "v.2021.3.19"
 
 
 def main():
@@ -134,6 +134,7 @@ def main():
     if out_dir:
         log.info(f"Results are in {out_dir}")
     log.info(f"  END")
+    return
 
 
 def init():

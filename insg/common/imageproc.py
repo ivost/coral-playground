@@ -94,7 +94,7 @@ class ImageProc:
                 log.debug(f"adding image {count}/{limit}  {fp}")
                 self.files.append(fp)
 
-        log.debug(f"{count} images")
+        log.debug(f"{count} image(s)")
         return count
 
     def preprocess_images(self, size):
