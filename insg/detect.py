@@ -37,10 +37,11 @@ class Detect(Engine):
         image = images[0]
         scale = (1.0, 1.0)
         conf = float(self.c.network.confidence)
+        log.debug(f"confidence {conf}")
         common.set_input(self.coral, image)
         self.coral.invoke()
         res = detect.get_objects(self.coral, conf, scale)
-        log.info(f"START - repeating {repeat} time(s)")
+        log.debug(f"START - repeating {repeat} time(s)")
         for _ in range(repeat):
             failed = 0
             for idx in range(len(images)):
@@ -49,21 +50,20 @@ class Detect(Engine):
                 common.set_input(self.coral, image)
                 self.coral.invoke()
                 objects = detect.get_objects(self.coral, conf, scale)
+                log.debug(f"==== in {file} - detected {len(objects)} object(s)")
                 if not objects:
                     failed += 1
                     continue
                 # inference results
-                log.debug(f"==== in {file} - detected {len(objects)} objects")
                 for obj in objects:
                     label = self.labels.get(obj.id, obj.id)
-                    log.debug(f"{obj.score} {obj.id} {label}")
+                    log.debug(f"{obj.score:.2f} {obj.id} {label}")
 
-                image = image.convert('RGB')
+                # image = image.convert('RGB')
                 draw_objects(ImageDraw.Draw(image), objects, self.labels)
-                # image.save(args.output)
-                # todo: either move cv2 or use tk
+                # # image.save(args.output)
+                # # todo: either move cv2 or use tk
                 image.show()
-                image.close
 
                 # if cid > 0:
                 #     count += 1
@@ -77,10 +77,14 @@ def draw_objects(draw, objs, labels):
     for obj in objs:
         label = labels.get(obj.id, obj.id)
         bbox = obj.bbox
+        pos = (bbox.xmin + 2, bbox.ymin + 2)
+        # draw.font()
+        # draw.textsize(2)
         draw.rectangle([(bbox.xmin, bbox.ymin), (bbox.xmax, bbox.ymax)], outline='yellow')
-        draw.text((bbox.xmin + 10, bbox.ymin + 10), f"{obj.score} - {label}", fill='yellow')
+        draw.text(pos, f"{obj.score:.2f}-{label}", fill='yellow')
 
 
 if __name__ == '__main__':
-    d = Detect(log_level=log.DEBUG)
+    # d = Detect(log_level=log.DEBUG)
+    d = Detect()
     d.run()

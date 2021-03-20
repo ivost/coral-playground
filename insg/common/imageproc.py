@@ -44,19 +44,6 @@ class ImageProc:
     def count_or_load_images(self, count_only):
         path = self.input
         pat = None
-        # if not hasattr(self.config, 're_path') or self.config.re_path is None:
-        #     self.config.re_path = None
-        # else:
-        #     rex = self.config.re_path
-        #     try:
-        #         pat = re.compile(rex)
-        #     except Exception as err:
-        #         log.error(f"Invalid regex {rex} {err}")
-        #         return 0
-        #
-        # if self.config.re_path is None:
-        #     if not os.path.exists(path):
-        #         return 0
         if os.path.isfile(path):
             if not count_only:
                 log.debug(f"adding image {path}")
@@ -104,9 +91,11 @@ class ImageProc:
             # flat 1-level read
             if Path(file).is_dir():
                 continue
-            log.debug(f"file {file}")
-            result.append(Image.open(file).convert('RGB').resize(size, Image.ANTIALIAS))
-
+            log.debug(f"preprocess file {file}")
+            img = Image.open(file)\
+                .convert('RGB')\
+                .resize(size, Image.ANTIALIAS)
+            result.append(img)
         duration = (time.perf_counter() - start) / 1000
         if duration > 2:
             log.debug(f"preprocessing took {duration} ms")
