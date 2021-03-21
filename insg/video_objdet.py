@@ -47,7 +47,7 @@ def main():
                         default=os.path.join(default_model_dir, default_model))
     parser.add_argument('--labels', help='label file path',
                         default=os.path.join(default_model_dir, default_labels))
-    parser.add_argument('--top_k', type=int, default=3,
+    parser.add_argument('--top_k', type=int, default=50,
                         help='number of categories with highest score to display')
     parser.add_argument('--camera_idx', type=int, help='Index of which video source to use. ', default=0)
     parser.add_argument('--threshold', type=float, default=0.1,
@@ -64,10 +64,10 @@ def main():
     labels = read_label_file(args.labels)
     inference_size = input_size(interpreter)
     dir = "/home/ivo/Videos/"
-    name = "airport-03-HD"
+    name = "airport-01-HD"
     inp = dir + name + ".mp4"
     outp = "/tmp/" + name + ".avi"
-    mp4 = dir + "output/" + name + "_" + model + ".mp4"
+    mp4 = dir + "/home/ivo/video_out/" + name + "_" + model + ".mp4"
 
     cap = cv2.VideoCapture(inp)
     # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
@@ -75,6 +75,7 @@ def main():
     video_out = cv2.VideoWriter(outp, fourcc, 20.0, size)
     print(f"input {inp}")
     print(f"output {outp}")
+    print(f"inference_size {inference_size}, conf {args.threshold}, max {args.top_k}")
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -85,12 +86,13 @@ def main():
         cv2_im_rgb = cv2.resize(cv2_im_rgb, inference_size)
         run_inference(interpreter, cv2_im_rgb.tobytes())
         objs = get_objects(interpreter, args.threshold)[:args.top_k]
+        print(f"{len(objs)} objects")
         cv2_im = append_objs_to_img(cv2_im, inference_size, objs, labels)
 
         video_out.write(cv2_im)
-        # cv2.imshow('frame', cv2_im)
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
+        cv2.imshow('frame', cv2_im)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
     cap.release()
     video_out.release()

@@ -4,6 +4,10 @@ import os.path
 import tempfile
 from pathlib import Path
 import cv2
+from pycoral.adapters import common
+from pycoral.adapters.common import input_size
+from pycoral.adapters.detect import get_objects
+from pycoral.utils.edgetpu import run_inference
 
 from insg.engine import Engine
 
@@ -28,7 +32,7 @@ class VideoEngine(Engine):
 
         self.exclusions = self.create_exclusions()
 
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
         tf = tempfile.NamedTemporaryFile(suffix=".avi")
         self.temp_video = tf.name
         self.output_file = self._output_filename()
@@ -41,18 +45,26 @@ class VideoEngine(Engine):
     def run_pipeline(self):
         log.info("Pipeline start")
         preview = "true" in str(self.c.output.preview).lower()
-        log.debug(f"preview: {preview}")
         inp = str(self.c.input.video)
         cap = cv2.VideoCapture(inp)
+        conf = float(self.c.network.confidence)
+        top_k = int(self.c.network.top_k)
+        self.size = input_size(self.coral)
+        log.info(f"preview: {preview}, conf: {conf}, top_k: {top_k}")
+
         while cap.isOpened():
-            if cv2.waitKey(1) == ord('q'):
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                log.info(f"{key} pressed")
                 break
-            read_correctly, frame = cap.read()
-            if not read_correctly or frame is None:
-                break
-            log.info(f"got frame")
-            # todo
-            results = None
+            ok, frame = cap.read()
+            if not ok:
+                continue
+            cv2_im_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            cv2_im_rgb = cv2.resize(cv2_im_rgb, self.size)
+            run_inference(self.coral, cv2_im_rgb.tobytes())
+            results = get_objects(self.coral, conf)[:top_k]
+            log.info(f"{len(results)} result(s)")
             ok, frame2 = self.process_results(results, frame)
             if preview:
                 if ok:
@@ -67,10 +79,11 @@ class VideoEngine(Engine):
                     # ignore frames w/o results
                     pass
 
+        cap.release()
         if self.video_out:
             self.video_out.release()
         assert len(self.output_file) > 0
-
+        cv2.destroyAllWindows()
         log.info(f"Convert to {self.c.output.type}")
         self._convert_to_mp4()
         assert os.path.exists(self.output_file)
@@ -79,37 +92,19 @@ class VideoEngine(Engine):
         log.info("Pipeline end")
 
     def process_results(self, results, frame):
-        # # one detection has 7 numbers, and the last detection is followed by -1 digit, which later is filled with 0
-        # bboxes = np.array(in_nn.getFirstLayerFp16())
-        # # transform the 1D array into Nx7 matrix
-        # bboxes = bboxes.reshape((bboxes.size // 7, 7))
-        # # filter out the results which confidence less than a defined threshold
-        # bboxes = bboxes[bboxes[:, 2] > self.confidence]
-        # if len(bboxes) == 0:
-        #     return False, None
-        #
-        # # Cut bboxes and labels
-        # labels = bboxes[:, 1].astype(int)
-        # confidences = bboxes[:, 2]
-        # bboxes = bboxes[:, 3:7]
-        # # log.info(f"process_results conf: {confidence}, {len(bboxes)} bboxes")
-        # # todo: config
-        # color_bgr = (0, 250, 250)
-        # font = cv2.FONT_HERSHEY_TRIPLEX
-        # font_size = 0.9
-        # thickness = 4
+        height, width, channels = frame.shape
+        scale_x, scale_y = width / self.size[0], height / self.size[1]
         count = 0
-        # for raw_bbox, label, conf in zip(bboxes, labels, confidences):
-        #     if label in self.exclusions:
-        #         continue
-        #     log.debug(f"conf: {conf}, label: {label} - {self.labels[label]}")
-        #     count += 1
-        #     bbox = _frame_norm(frame, raw_bbox)
-        #     cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color_bgr, thickness)
-        #     cv2.putText(frame, self.labels[label], (bbox[0] + 10, bbox[1] + 20),
-        #                 font, font_size, color_bgr)
-        #     cv2.putText(frame, f"{int(conf * 100)}%", (bbox[0] + 10, bbox[1] + 40),
-        #                 font, font_size, color_bgr)
+        for obj in results:
+            count += 1
+            bbox = obj.bbox.scale(scale_x, scale_y)
+            x0, y0 = int(bbox.xmin), int(bbox.ymin)
+            x1, y1 = int(bbox.xmax), int(bbox.ymax)
+            label = self.labels.get(obj.id, obj.id)
+            label = f"{label} {obj.score:.2f}"
+            color = (0, 255, 255)
+            cv2.rectangle(frame, (x0, y0), (x1, y1), color, 2)
+            cv2.putText(frame, label, (x0, y0 + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
         if count:
             return True, frame
         else:
