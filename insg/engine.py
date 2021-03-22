@@ -6,8 +6,8 @@ from pycoral.adapters import common
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
-from insg.common.config import Config
-from insg.common.imageproc import ImageProc
+from common.config import Config
+from common.imageproc import ImageProc
 
 VERSION = "2021.3.20.1"
 

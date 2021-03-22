@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from insg.common import Config
+from common import Config
 
 
 class ImageProc:

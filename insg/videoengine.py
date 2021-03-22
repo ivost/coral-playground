@@ -9,7 +9,7 @@ from pycoral.adapters.common import input_size
 from pycoral.adapters.detect import get_objects
 from pycoral.utils.edgetpu import run_inference
 
-from insg.engine import Engine
+from engine import Engine
 
 
 class VideoEngine(Engine):
@@ -173,6 +173,7 @@ class VideoEngine(Engine):
             log.debug(f"Deleting {inp}")
             os.remove(inp)
         return
+
 
 if __name__ == '__main__':
     v = VideoEngine()
