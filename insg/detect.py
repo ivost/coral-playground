@@ -10,7 +10,7 @@ from pycoral.adapters import detect
 from insg.common import Stats
 from insg.engine import Engine
 
-version = "v.2021.3.20"
+version = "v.2021.3.28"
 
 
 class Detect(Engine):

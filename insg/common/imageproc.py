@@ -8,9 +8,10 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import imageio
 from PIL import Image
 
-from common import Config
+from insg.common import Config
 
 
 class ImageProc:
@@ -129,6 +130,15 @@ class ImageProc:
         log.debug(f"Copying {src_file_path.name} to {dest_dir_path}")
         shutil.copy2(src_file_path, dest_dir_path)
 
+    def image_brightness(self, filename):
+        img = imageio.imread(filename, as_gray=True)
+        avg = np.mean(img)
+        print(avg)
+        is_light = avg > 127
+        return 'light' if is_light else 'dark'
+
+        print(img_estim(f, 127))
+
 
 if __name__ == '__main__':
     c = Config()
@@ -138,3 +148,6 @@ if __name__ == '__main__':
     images = img_proc.preprocess_images((128, 128))
     assert len(images) > 0
     assert len(img_proc.files) >= len(images)
+    for im in img_proc.files:
+        print(im, img_proc.image_brightness(im))
+

@@ -18,7 +18,7 @@ def main():
                       default="models/yolov4_416_full_integer_quant_edgetpu.tflite",
                       help='File path of .tflite file')
   parser.add_argument('-i', '--input',
-                      default="",
+                      default="images/kite.jpg",
                       help='File path of image to process')
   parser.add_argument('-l', '--labels', help='File path of labels file',
                       default="models/coco_labels.txt")

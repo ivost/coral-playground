@@ -60,6 +60,9 @@ class Engine:
         return self.draw_boxes(objects, img)
 
     def draw_boxes(self, objects, img, ax=1, ay=1):
+        tone = self.img_proc.image_brightness(self.img_proc.files[0])
+        color = "white" if tone == "dark" else "purple"
+
         canvas = ImageDraw.Draw(img)
         for obj in objects:
             label = self.labels.get(obj.id, obj.id)
@@ -69,9 +72,9 @@ class Engine:
             else:
                 bb = obj.bbox
 
-            canvas.rectangle([(bb.xmin, bb.ymin), (bb.xmax, bb.ymax)], outline='yellow')
+            canvas.rectangle([(bb.xmin, bb.ymin), (bb.xmax, bb.ymax)], outline=color)
             pos = (bb.xmin + 4, bb.ymin + 4)
-            canvas.text(pos, f"{obj.score:.2f}-{label}", fill='yellow')
+            canvas.text(pos, f"{obj.score:.2f}-{label}", fill=color)
         return img
 
 
