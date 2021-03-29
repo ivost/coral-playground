@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 
 import cv2
-from yolov4.tflite import YOLOv4
 
 
 class MyYolo:
