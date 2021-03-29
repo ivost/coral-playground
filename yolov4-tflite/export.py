@@ -1,18 +1,18 @@
-from yolov4.tf import YOLOv4, save_as_tflite, YOLODataset
+from YOLOv4.tf import YOLOv4, save_as_tflite, YOLODataset
 
 """
 https://wiki.loliot.net/docs/lang/python/libraries/yolov4/python-yolov4-edge-tpu
 
-edgetpu_compiler -sa yolov4-tiny-int8.tflite
+edgetpu_compiler -sa YOLOv4-tiny-int8.tflite
 
 """
 yolo = YOLOv4()
 
 yolo.config.parse_names("coco.names")
-yolo.config.parse_cfg("../config/yolov4-tiny-relu-tpu.cfg")
+yolo.config.parse_cfg("../config/YOLOv4-tiny-relu-tpu.cfg")
 
 yolo.make_model()
-yolo.load_weights("yolov4-tiny-relu.weights", weights_type="yolo")
+yolo.load_weights("YOLOv4-tiny-relu.weights", weights_type="yolo")
 
 dataset = YOLODataset(
     config=yolo.config,
@@ -23,7 +23,7 @@ dataset = YOLODataset(
 
 save_as_tflite(
     model=yolo.model,
-    tflite_path="yolov4-tiny-int8.tflite",
+    tflite_path="YOLOv4-tiny-int8.tflite",
     quantization="full_int8",
     dataset=dataset,
 )

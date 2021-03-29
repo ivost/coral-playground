@@ -10,14 +10,7 @@ from pathlib import Path
 
 import cv2
 
-print(sys.path)
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4")
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/common")
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/common/metalayer")
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/tflite")
-print(sys.path)
-
-from YOLOv4.tflite import YOLOv4
+# from YOLOv4.tflite import YOLOv4
 
 
 class MyYolo:
@@ -103,7 +96,6 @@ class MyYolo:
             log.debug(f"Deleting {inp}")
             os.remove(inp)
         return
-
 
 if __name__ == '__main__':
     # name = "airport-03"
