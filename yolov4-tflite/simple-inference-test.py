@@ -14,12 +14,15 @@ from pycoral.utils.edgetpu import make_interpreter
 def main():
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('-m', '--model', required=True,
+  parser.add_argument('-m', '--model',
+                      default="models/yolov4_416_full_integer_quant_edgetpu.tflite",
                       help='File path of .tflite file')
-  parser.add_argument('-i', '--input', required=True,
+  parser.add_argument('-i', '--input',
+                      default="",
                       help='File path of image to process')
-  parser.add_argument('-l', '--labels', help='File path of labels file')
-  parser.add_argument('-t', '--threshold', type=float, default=0.4,
+  parser.add_argument('-l', '--labels', help='File path of labels file',
+                      default="models/coco_labels.txt")
+  parser.add_argument('-t', '--threshold', type=float, default=0.2,
                       help='Score threshold for detected objects')
   parser.add_argument('-o', '--output',
                       help='File path for the result image with annotations')
