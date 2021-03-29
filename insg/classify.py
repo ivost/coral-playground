@@ -9,12 +9,12 @@ from insg.engine import Engine
 
 CLASS = "birds"
 IGNORE_IDS = [964]
-version = "v.2021.3.20"
+version = "v.2021.3.28"
 
 
 class Classify(Engine):
     def __init__(self, log_level=log.INFO):
-        super().__init__("Image Classification", version, "classify.ini", log_level)
+        super().__init__("Image Classification", "classify.ini", log_level)
 
     def run(self):
         stats = Stats()
