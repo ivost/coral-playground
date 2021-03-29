@@ -15,7 +15,7 @@ version = "v.2021.3.20"
 
 class Detect(Engine):
     def __init__(self, log_level=log.INFO):
-        super().__init__("Image Object Detection", version, "detect.ini", log_level)
+        super().__init__("Image Object Detection", "detect.ini", log_level)
 
     def run(self):
         log.info(f"Image Object detection {version}")
@@ -61,8 +61,8 @@ class Detect(Engine):
                     img.show()
                 p: str = self.generate_image_out_path(file)
                 img.save(p)
-                # image = self.detection_results(objects, image)
-                # image.show()
+                image = self.detection_results(objects, image)
+                image.show()
 
     def generate_image_out_path(self, file):
         name = Path(file).stem
