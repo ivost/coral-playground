@@ -10,14 +10,14 @@ from pathlib import Path
 
 import cv2
 
-print(sys.path)
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4")
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/common")
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/common/metalayer")
-sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/tflite")
-print(sys.path)
+# print(sys.path)
+# sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4")
+# sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/common")
+# sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/common/metalayer")
+# sys.path.append("/home/ivo/github/coral-playground/yolov4-tflite/YOLOv4/tflite")
+# print(sys.path)
 
-from YOLOv4.tflite import YOLOv4
+from yolov4.tflite import YOLOv4
 
 
 class MyYolo:
@@ -27,10 +27,10 @@ class MyYolo:
 
         self.yolo = YOLOv4()
 
-        self.yolo.config.parse_names("./dataset/coco.names")
-        self.yolo.config.parse_cfg("./config/YOLOv4-tiny-relu-tpu.cfg")
+        self.yolo.config.parse_names("dataset/coco.names")
+        self.yolo.config.parse_cfg("config/yolov4-tiny-relu-tpu.cfg")
         self.yolo.summary()
-        self.yolo.load_tflite("./config/YOLOv4-tiny-int8_edgetpu.tflite")
+        self.yolo.load_tflite("config/yolov4-tiny-int8_edgetpu.tflite")
 
         self.temp_video = "/tmp/a.avi"
         self.output_file = "/home/ivo/a.mp4"
